@@ -31,7 +31,6 @@ A fin de codificar mas cómodamente, recomiento instalar in IDE. Propongo [ATOM]
 Se puede descargar del sitio oficial y está disponible para Linux, Windows y MACOS.
 
 ## 3. Instalación de SLIM
-Start by making a folder for your project (mine is called project, because naming things is hard).
 Para empezar nos ubicamos en la carpeta del proyecto y generamos la siguiente estructura:
 ```
 ├── proyecto
@@ -86,6 +85,85 @@ php -S localhost:8080
 ```
 Si abrimos postman y hacemos una solicitud GET a la http://localhost:8080/src/public/index.php/hello/{Usuario} obtenendremos como respuesta "Hello, Usuario".
 
+## 3. Instalación de DOCTRINE
+Doctrine es un ORM para PHP que nos proporciona una capa de abstracción sobre el sistema de gestión de base de datos.
+El primer paso es modificar el archivo *composer.json* :
+```
+{
+    "require": {
+        "slim/slim": "3.*",
+        "doctrine/orm": "2.4.*"
+    },
+    "autoload": {
+        "psr-4": {
+            "App\\": "src/App"
+        }
+    }
+}
+```
+Lo que hacemos es indicarle a composer, que necesitamos doctrine y ademas indicamos donde se va a ubicar el espacio de nombres App.
+Escribimos en la consola, el comando para instalar y actualizar las dependencias especificadas en *composer.json*:
+```
+composer update
+```
+Creamos una carpeta *App* dentro de *src* y dentro de *App* otra carpeta con el nombre *Entity*. El arbol de directorios queda así:
+```
+├── proyecto
+│   └── src
+│       └── public
+│       └── App
+│           └── Entity
+```
+Creamos el siguiente archivo *src/App/AbstractResource.php*, donde vamos a especificar el controlador de base de datos que vamos a utilizar así como las credenciales de conexión:
+```
+<?php
 
+namespace App;
+
+use Doctrine\ORM\EntityManager;
+use Doctrine\ORM\Tools\Setup;
+
+abstract class AbstractResource
+{
+    /**
+     * @var \Doctrine\ORM\EntityManager
+     */
+    private $entityManager = null;
+
+    /**
+     * @return \Doctrine\ORM\EntityManager
+     */
+    public function getEntityManager()
+    {
+        if ($this->entityManager === null) {
+            $this->entityManager = $this->createEntityManager();
+        }
+
+        return $this->entityManager;
+    }
+
+    /**
+     * @return EntityManager
+     */
+    public function createEntityManager()
+    {
+        $path = array('Path/To/Entity');
+        $devMode = true;
+
+        $config = Setup::createAnnotationMetadataConfiguration($path, $devMode);
+
+        // define credentials...
+        $connectionOptions = array(
+            'driver'   => 'pdo_pgsql',
+            'host'     => 'localhost',
+            'dbname'   => 'slimphp',
+            'user'     => 'postgres',
+            'password' => 'postgres',
+        );
+
+        return EntityManager::create($connectionOptions, $config);
+    }
+}
+```
 
 
