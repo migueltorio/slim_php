@@ -128,13 +128,15 @@ Hola
 
 ## 4. Endpoints
 Ahora ya estamos listos para empezar a crear los endpoints. Seguiremos el estilo de arquitectura REST como protocolo para intercambio de información entre el usuario final y el almacén de datos (base de datos).
-REST define un conjunto de operaciones bien definidas que se aplican a todos los recursos de información que son, entre otras, POST, GET, PUT y DELETE.
-
-Según la definición, las operaciones las vamos a definir como:
+REST define un conjunto de operaciones bien definidas que se aplican a todos los recursos de información que son, entre otras, las siguientes:
 - GET: Pide una representación del recurso especificado
 - POST: Envía los datos para que sean procesados por el recurso identificado. Creación de un recurso.
 - PUT: Igual que POST solo que lo utilizaremos para modificar un recurso existente.
 - DELETE: Elimina un recurso.
+
+| Operación     | Ruta          | Descripción   |
+| ------------- | ------------- | ------------- |
+| GET           | /lifecoach/person  |  Devuelve lalista de personas en la base de datos, con sus perfiles de salud |
 
 
 
