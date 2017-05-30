@@ -37,9 +37,10 @@ Para empezar nos ubicamos en la carpeta del proyecto y generamos la siguiente es
 ├── proyecto
 │   └── src
 │       └── public
+│       └── endpoints
 │       └── entity
 ```
-La carpeta public, sera la raiz de nuestro sitio. La carpeta entity contendrá las clases.
+La carpeta public, sera la raiz de nuestro sitio. La carpeta endpoints, contendrá las defininiciones de los endpoints. La carpeta entity contendrá las clases.
 Luego creamos en la raiz de la carpeta un archivo *composer.json* con el siguiente contenido:
 ```
 {
@@ -67,7 +68,7 @@ Si abrimos el archivo composer, tiene la siguiente estructura:
     }
 }
 ```
-Creamos un archivo en *src/public/index.php:
+Creamos un archivo *index.php* en *src/public*:
 ```
 <?php
 
@@ -84,6 +85,7 @@ require '../../vendor/autoload.php';
 //Doctrine
 $paths = array(__DIR__ . "/src");
 $isDevMode = false;
+//aca especificamos los datos de la conexion a la base de datos
 $dbParams = array(
     'driver' => 'pdo_pgsql',
     'host' => '127.0.0.1',
@@ -98,7 +100,42 @@ $entityManager = EntityManager::create($dbParams, $configDoctrine);
 $app = new \Slim\App;
 
 //endpoints
+include_once '../endpoints/endpoints.php'
 
 //creamos el web service
 $app->run();
 ```
+Creamos un archivo *endpoints.php* en *src/endpoints*:
+```
+<?php
+$app->get('/index', function ($request,$response) {
+    $response->getBody()->write("Hola");
+    return $response;
+});
+```
+Luego desde la consolta, ubicados en la raiz del proyecto, ejecutamos el siguiente comando:
+```
+php -S localhost:80
+```
+Usando Postman hacemos una solicitud GET al endpoint que hemos creado:
+```
+http://localhost/src/public/index.php/index
+```
+Si todo se hizo correctamente, recibiremos lo siguiente:
+```
+Hola
+```
+
+## 4. Endpoints
+Ahora ya estamos listos para empezar a crear los endpoints. Seguiremos el estilo de arquitectura REST como protocolo para intercambio de información entre el usuario final y el almacén de datos (base de datos).
+REST define un conjunto de operaciones bien definidas que se aplican a todos los recursos de información que son, entre otras, POST, GET, PUT y DELETE.
+
+Según la definición, las operaciones las vamos a definir como:
+- GET: Pide una representación del recurso especificado
+- POST: Envía los datos para que sean procesados por el recurso identificado. Creación de un recurso.
+- PUT: Igual que POST solo que lo utilizaremos para modificar un recurso existente.
+- DELETE: Elimina un recurso.
+
+
+
+
