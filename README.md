@@ -30,24 +30,33 @@ Postman es un cliente REST, que nos va a permitir probar nuestro servicio web. S
 A fin de codificar mas cómodamente, recomiento instalar in IDE. Propongo [ATOM](https://atom.io/), que es un IDE open source y altamente customizable.
 Se puede descargar del sitio oficial y está disponible para Linux, Windows y MACOS.
 
-## 3. Instalación de SLIM
+
+## 3. Instalación de SLIM, DOCTRINE y RESPECT
 Para empezar nos ubicamos en la carpeta del proyecto y generamos la siguiente estructura:
 ```
 ├── proyecto
 │   └── src
 │       └── public
+│       └── entity
 ```
-La carpeta public es la que será nuestro webroot. Luego debemos instalar Slim con el siguiente comando:
+La carpeta public, sera la raiz de nuestro sitio. La carpeta entity contendrá las clases.
+Luego creamos en la raiz de la carpeta un archivo *composer.json* con el siguiente contenido:
 ```
-composer require slim/slim "^3.0"
+{
+    "require": {
+        "slim/slim": "*",
+        "doctrine/orm": "*",
+        "respect/validation": "*"
+    },
+    "autoload": {
+        "psr-4": {"Custom\\": "src/"}
+    }
+}
 ```
-Luego de la instalación, la estructura del proyecto debería ser la siguiente:
+Le indicamos al composer, que instale Slim que es el framework para generar el web service. Doctrine es un mapeador de objetos-relacional (ORM) escrito en PHP que proporciona una capa de persistencia para objetos PHP. Respect es una librería para validar datos.
+Instalamos los paquetes con el siguiente comando, desde la consola:
 ```
-├── proyecto
-│   └── src
-│       └── public
-│   └── vendor
-│   composer
+composer update
 ```
 En la carpeta vendor, se encuentran todas las librerías necesarias para ejecutar el framework. El archivo composer contiene las definiciones de las dependencias que estan instaladas.
 Si abrimos el archivo composer, tiene la siguiente estructura:
@@ -58,112 +67,38 @@ Si abrimos el archivo composer, tiene la siguiente estructura:
     }
 }
 ```
-Creamos un archivo en:
-```
-src/public/index.php
-```
-Con el siguiente contenido:
+Creamos un archivo en *src/public/index.php:
 ```
 <?php
+
+//establecemos los espacios de nombres
 use \Psr\Http\Message\ServerRequestInterface as Request;
 use \Psr\Http\Message\ResponseInterface as Response;
+use \Doctrine\ORM\Tools\Setup;
+use \Doctrine\ORM\EntityManager;
+use \Respect\Validation\Validator as v;
 
+//hacemos el autoload de las librerias
 require '../../vendor/autoload.php';
 
-$app = new \Slim\App;
-$app->get('/hello/{name}', function (Request $request, Response $response) {
-    $name = $request->getAttribute('name');
-    $response->getBody()->write("Hello, $name");
+//Doctrine
+$paths = array(__DIR__ . "/src");
+$isDevMode = false;
+$dbParams = array(
+    'driver' => 'pdo_pgsql',
+    'host' => '127.0.0.1',
+    'user' => 'postgres',
+    'password' => 'postgres',
+    'dbname' => 'slimphp',
+);
+$configDoctrine = Setup::createAnnotationMetadataConfiguration($paths, $isDevMode, null, null, false);
+$entityManager = EntityManager::create($dbParams, $configDoctrine);
 
-    return $response;
-});
+//Slim
+$app = new \Slim\App;
+
+//endpoints
+
+//creamos el web service
 $app->run();
 ```
-Luego, probamos nuesto nuevo "servicio web" ejecutando el siguiente comando desde la consola:
-```
-php -S localhost:8080
-```
-Si abrimos postman y hacemos una solicitud GET a la http://localhost:8080/src/public/index.php/hello/{Usuario} obtenendremos como respuesta "Hello, Usuario".
-
-## 3. Instalación de DOCTRINE
-Doctrine es un ORM para PHP que nos proporciona una capa de abstracción sobre el sistema de gestión de base de datos.
-El primer paso es modificar el archivo *composer.json* :
-```
-{
-    "require": {
-        "slim/slim": "3.*",
-        "doctrine/orm": "2.4.*"
-    },
-    "autoload": {
-        "psr-4": {
-            "App\\": "src/App"
-        }
-    }
-}
-```
-Lo que hacemos es indicarle a composer, que necesitamos doctrine y ademas indicamos donde se va a ubicar el espacio de nombres App.
-Escribimos en la consola, el comando para instalar y actualizar las dependencias especificadas en *composer.json*:
-```
-composer update
-```
-Creamos una carpeta *App* dentro de *src* y dentro de *App* otra carpeta con el nombre *Entity*. El arbol de directorios queda así:
-```
-├── proyecto
-│   └── src
-│       └── public
-│       └── App
-│           └── Entity
-```
-Creamos el siguiente archivo *src/App/AbstractResource.php*, donde vamos a especificar el controlador de base de datos que vamos a utilizar así como las credenciales de conexión:
-```
-<?php
-
-namespace App;
-
-use Doctrine\ORM\EntityManager;
-use Doctrine\ORM\Tools\Setup;
-
-abstract class AbstractResource
-{
-    /**
-     * @var \Doctrine\ORM\EntityManager
-     */
-    private $entityManager = null;
-
-    /**
-     * @return \Doctrine\ORM\EntityManager
-     */
-    public function getEntityManager()
-    {
-        if ($this->entityManager === null) {
-            $this->entityManager = $this->createEntityManager();
-        }
-
-        return $this->entityManager;
-    }
-
-    /**
-     * @return EntityManager
-     */
-    public function createEntityManager()
-    {
-        $path = array('Path/To/Entity');
-        $devMode = true;
-
-        $config = Setup::createAnnotationMetadataConfiguration($path, $devMode);
-
-        // define credentials...
-        $connectionOptions = array(
-            'driver'   => 'pdo_pgsql',
-            'host'     => 'localhost',
-            'dbname'   => 'slimphp',
-            'user'     => 'postgres',
-            'password' => 'postgres',
-        );
-
-        return EntityManager::create($connectionOptions, $config);
-    }
-}
-```
-
-
