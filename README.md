@@ -144,9 +144,165 @@ REST define un conjunto de operaciones bien definidas que se aplican a todos los
 | DELETE        | /lifecoach/person/{personId}  | Elimina a la persona y su perfil de salud |
 | GET           | /lifecoach/person/{personId}/health-profile/history | obtiene el perfil de salud historico |
 | POST          | /lifecoach/person/{personId}/health-profile | Crea un nuevo perfil de salud |
-| 
 
+### 4.1. Clases
+Usando Doctrine vamos a crear las dos entidades o clases que vamos a utilizar y que luego serán mapeadas a la base de datos.
+#### 4.1.1. Person
+En la carpeta *src/entity* creamos un nuevo archivo con el nombre *Person.php*.
+En la cabecera declaramos el nombre de la tabla e indicamos que se trata de una entidad.
+Luego especificamos las variables de la clase: id, firstName, lastName y birthDate.
+También indicamos que esta clase tiene una relación uno a muchos con HealthProfile.
+Por ultimo, especificamos el setter y el getter.
+```
+<?php
+namespaceCustomEntity;
+useDoctrineORMMapping as ORM;
+/**
+* Person
+* @ORM\Table(name="Person")
+* @ORM\Entity
+*/
+class Person
+{
+/**
+ * @ORM\Column(name="id", type="integer")
+ * @ORM\Id
+ * @ORM\GeneratedValue(strategy="AUTO")
+ */
+protected $id;
+/**
+ * @ORM\OneToMany(targetEntity="HealthProfile", mappedBy="person")
+ */
+protected $healthProfile;
+/**
+ * @ORM\Column(name="firstName", type="string", length=255)
+ */
+private $firstName;
+/**
+ * @ORM\Column(name="lastName", type="string", length=255)
+ */
+private $lastName;
+/**
+ * @ORM\Column(name="birthDate", type="date")
+ */
+private $birthDate;
 
+public
+function __get($property)
+  {
+  if (property_exists($this, $property))
+    {
+    return $this->$property;
+    }
+  }
+
+public
+
+function __set($property, $value)
+  {
+  if (property_exists($this, $property))
+    {
+    $this->$property = $value;
+    }
+  }
+}
+```
+#### 4.1.1. HealthProfile
+En la carpeta *src/entity* creamos un nuevo archivo con el nombre *HealthProfile.php*.
+En la cabecera declaramos el nombre de la tabla e indicamos que se trata de una entidad.
+Luego especificamos las variables de la clase: id, wight, height y date (que corresponden al peso, altura en una determinada fecha).
+También indicamos que esta clase tiene una relación muchos a uno con Person.
+Por ultimo, especificamos el setter y el getter.
+```
+<?php
+namespace Custom\Entity;
+use Doctrine\ORM\Mapping as ORM;
+/**
+ * @ORM\Table(name="HealthProfile")
+ * @ORM\Entity
+ */
+
+class HealthProfile
+{
+    /**
+     * @ORM\Column(name="id", type="integer")
+     * @ORM\Id
+     * @ORM\GeneratedValue(strategy="AUTO")
+     */
+    protected $id;
+    /**
+     * @ORM\ManyToOne(targetEntity="Person", inversedBy="healthProfile")
+     * @ORM\JoinColumn(name="person_id", referencedColumnName="id")
+     */
+    protected $person;
+    /**
+     * @ORM\Column(name="weight", type="decimal")
+     */
+    private $weight;
+    /**
+     * @ORM\Column(name="height", type="decimal")
+     */
+    private $height;
+    /**
+     * @ORM\Column(name="date", type="date")
+     */
+    private $date;
+
+    public function __get($property)
+    {
+        if (property_exists($this, $property)) {
+            return $this->$property;
+        }
+    }
+    public function __set($property, $value)
+    {
+        if (property_exists($this, $property)) {
+            $this->$property = $value;
+        }
+    }
+}
+```
+Una vez que hayamos creado las dos clases, generamos la estructura en la base de datos, con el siguiente comando:
+```
+php vendor/doctrine/orm/bin/doctrine.php orm:schema-tool:create
+```
+En este punto, ya podemos utilizar las entidades Person, HealthProfile y manejarlos como objetos PHP.
+A modo de ejemplo, vamos a crear una entidad *Person* y luego hacerla persistente en la base de datos.
+En este ejemplo, creamos el objeto en *$person* , e asignamos sus atributos y luego lo hacemos persistente en la base de datos.
+El resultado de la ejecución de esta porción de código, debe imprimir el id de Person asignado.
+```
+$person = new \Custom\Entity\Person;
+$person->firstName = "Miguel";
+$person->lastName = "Torio";
+$person->birthDate = new DateTime();
+$entityManager->persist($person);
+$entityManager->flush();
+
+echo $person->id;
+```
+Para recuperar un dato específico, podemos hacer:
+```
+//buscar la Person con id = 30
+$person = $entityManager->find('\Custom\Entity\Person', 30);
+echo $person->lastName;
+```
+
+Ahora, ya podemos empezar a generar los endpoints.
+Todos los endpoints los vamos a colocar en *src/endpoints/endpoints.php*.
+A modo de ejemplo, tenemos un endpoint:
+```
+$app->get('/index', function ($request,$response) use($entityManager,$v) {
+    $response->getBody()->write("Hola");
+    return $response;
+});
+```
+En este endpoint que tiene como ruta */index*, recibe como parámetros un request y un response. El request contiene los datos recibidos y en el response se encapsulan los datos a ser enviados. Además usamos una instancia del entityManager y v que corresponden al ORM Doctrine y al Validador respectivamente. Devolvemos la instancia del response. 
+
+En los ejemplos siguientes, veremos las distintas variaciones del método.
+
+### 4.2. GET /lifecoach/person
+```
+```
 
 
 
