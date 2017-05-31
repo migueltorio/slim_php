@@ -136,7 +136,19 @@ REST define un conjunto de operaciones bien definidas que se aplican a todos los
 
 | Operación     | Ruta          | Descripción   |
 | ------------- | ------------- | ------------- |
-| GET           | /lifecoach/person  |  Devuelve lalista de personas en la base de datos, con sus perfiles de salud |
+| GET           | /lifecoach/person  |  Devuelve la lista de personas, con sus peso y altura |
+| GET           | /lifecoach/person/{personId}  |  Devuelve los datos de la persona |
+| GET           | /lifecoach/person/{personId}/health-profile   | Devuelve el perfil de salud de la persona |
+| POST           | /lifecoach/person | Crea una nueva persona   |
+| PUT           | /lifecoach/person/{personId}  | Actualiza los datos de la persona |
+| DELETE        | /lifecoach/person/{personId}  | Elimina a la persona y su perfil de salud |
+| GET           | /lifecoach/person/{personId}/health-profile/history | obtiene el perfil de salud historico |
+| POST          | /lifecoach/person/{personId}/health-profile | Crea un nuevo perfil de salud |
+| 
+
+
+
+
 
 
 
