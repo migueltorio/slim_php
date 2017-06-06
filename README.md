@@ -324,6 +324,7 @@ En este endpoint que tiene como ruta */index*, recibe como parámetros un reques
 En los ejemplos siguientes, veremos las distintas variaciones del método.
 
 #### 4.2.1. GET lifecoach/person
+En este ejemplo realizamos una consulta sql en "duro". Retornamos lalista de todas las personas, con su último perfil de salud.
 ```
 $app->get('/lifecoach/person',
 function ($request, $response) use($entityManager, $v)
@@ -340,7 +341,7 @@ function ($request, $response) use($entityManager, $v)
 ```
 
 #### 4.2.2. GET lifecoach/person/{personId}
-Devuelve la lista de personas
+En este ejemplo, utilizando el entity manager, buscamos la persona por su id y retornamos los datos.
 ```
 $app->get('/lifecoach/person/{personId}',
 function ($request, $response) use($entityManager, $v)
@@ -357,7 +358,7 @@ function ($request, $response) use($entityManager, $v)
 	});
 ```    
 #### 4.2.3. GET lifecoach/person/{personId}/health-profile
-Devuelve el perfil de salud de la persona
+Nuevamente utilizando el entity manager, buscamos a la persona por su id y luego obtenemos todo su historial de salud.
 ```
 $app->get('/lifecoach/person/{personId}/health-profile',
 function ($request, $response) use($entityManager, $v)
@@ -375,6 +376,7 @@ function ($request, $response) use($entityManager, $v)
 ```    
 
 #### 4.2.4. POST lifecoach/person
+En este ejemplo, primero validamos que se reciban los datos de la pesona y su perfil de salud inicial. Luego insertamos la persona y su perfil de salud utilizando el entity manager.
 ```
 $app->post('/lifecoach/person',
 function ($request, $response) use($entityManager, $v)
@@ -433,7 +435,8 @@ function ($request, $response) use($entityManager, $v)
 	});
 ```    
 
-#### 4.2.4. DELETE	/lifecoach/person/{personId}
+#### 4.2.5. DELETE	/lifecoach/person/{personId}
+Eliminamos la persona, siempre utilizando el entity manager. Verificamos antes que el id de la persona sea correcto.
 ```
 
 $app->delete('/lifecoach/person/{personId}',
@@ -457,7 +460,8 @@ function ($request, $response) use($entityManager, $v)
 	});
 ```
 
-#### 4.2.4. GET /lifecoach/person/{personId}/health-profile/history
+#### 4.2.6. GET /lifecoach/person/{personId}/health-profile/history
+Utilizando el entity manager, obtenemos la lista completa de perfiles de salud
 ```
 $app->get('/lifecoach/person/{personId}/health-profile/history',
 function ($request, $response) use($entityManager, $v)
@@ -481,7 +485,8 @@ function ($request, $response) use($entityManager, $v)
 
 ```
 
-#### 4.2.4. POST /lifecoach/person/{personId}/health-profile/history
+#### 4.2.7. POST /lifecoach/person/{personId}/health-profile/history
+Agregamos un nuevo perfil de salud.
 ```
 
 $app->post('/lifecoach/person/{personId}/health-profile/history',
